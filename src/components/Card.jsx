@@ -1,39 +1,25 @@
 import { Card, Form, Button } from "react-bootstrap"
 
-const Cards = ({ data, handleChange, handleSubmit }) => {
-  const { title, content, date, time } = data
+const Cards = ({ state, dispatch, handleSubmit }) => {
   return (
-    <Card className="col-6">
-      <Form onSubmit={handleSubmit}>
+    <Card className="col-5 m-auto mt-0">
+      <Form onSubmit={(event) => handleSubmit(event, state)}>
         <Form.Group className="mb-3">
           <Form.Label>Title</Form.Label>
           <Form.Control
             type="text"
-            onChange={handleChange}
+            value={state.title}
             placeholder="Title"
-            value={title} />
+            onChange={(e) => dispatch({ ...state, type: "title", payload: e.target.value })} />
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label>Description</Form.Label>
           <Form.Control
             as="textarea"
-            onChange={handleChange}
             rows={3}
-            value={content} />
-        </Form.Group>
-        <Form.Group className="mb-3">
-          <Form.Label>Date</Form.Label>
-          <Form.Control
-            type="date"
-            onChange={handleChange}
-            value={date} />
-        </Form.Group>
-        <Form.Group className="mb-3">
-          <Form.Label>Time</Form.Label>
-          <Form.Control
-            type="time"
-            onChange={handleChange}
-            value={time} />
+            value={state.description}
+            placeholder="description"
+            onChange={(e) => dispatch({ ...state, type: "description", payload: e.target.value })} />
         </Form.Group>
         <div className="d-grid gap-2">
           <Button variant="success mb-3 rounded-pill"

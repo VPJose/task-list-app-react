@@ -3,7 +3,7 @@ import { Button, Table } from "react-bootstrap"
 
 const Tasks = ({ tasks, handleRead, handleUpdate, handleDelete, handleNewTask }) => {
   return (
-    <div className="col-6">
+    <div className="col-5 m-auto mt-0">
       <Table striped bordered hover>
         <thead>
           <tr>
@@ -14,8 +14,8 @@ const Tasks = ({ tasks, handleRead, handleUpdate, handleDelete, handleNewTask })
         </thead>
         <tbody>
           {tasks.map((task, index) => (
-            <tr kety={index}>
-              <th className="text-center">{index}</th>
+            <tr key={index}>
+              <th className="text-center">{index + 1}</th>
               <th className="text-center" onClick={() => handleRead(task.id)}>{task.title}</th>
               <th className="d-flex justify-content-around">
                 <Button variant="primary" className="rounded-circle">
