@@ -3,11 +3,12 @@ import Header from "../views/Header"
 import Cards from "../components/Card"
 import Tasks from "../components/Tasks"
 import { useTask } from "../context/TaskContext"
+import { useNavigate } from "react-router-dom"
 
 const Home = () => {
 
-  const { saveTask, readTasks, deleteTask, updateTask } = useTask()
-
+  const { user, saveTask, readTasks, deleteTask, updateTask } = useTask()
+  let navigate = useNavigate()
   const [state, dispatch] = useReducer(reducer, {
     id: ' ',
     title: ' ',
@@ -42,27 +43,20 @@ const Home = () => {
   const [update, setUpdate] = useState(false)
 
   useEffect(() => {
+
     const newTask = []
     readTasks.map(readTask => {
       newTask.push(readTask)
     })
     setTasks(newTask)
+
   }, [readTasks])
 
   const handleNewTask = () => {
     dispatch({ ...state, type: 'new', payload: ' ' })
 
     setUpdate(false)
-  }
-
-  const handleClickRead = (id) => {
-    const result = tasks.find(task => task.id === id)
-
-    setUpdate(true)
-
-    for (const rslt in result) {
-      dispatch({ ...state, type: rslt, payload: result[rslt] })
-    }
+    setShow(true)
   }
 
   const handleClickUpdate = (id) => {
@@ -85,15 +79,15 @@ const Home = () => {
 
     event.preventDefault()
 
-    const id = state.id
-
-    console.log(id)
-
     if (update) {
+      const result = tasks.filter(task => task.id !== id)
       const newTask = {
+        userID: user?.uid,
         title: state.title,
         description: state.description
       }
+      result.push(newTask)
+      setTasks(result)
       updateTask(id, newTask)
     } else {
       try {
@@ -102,20 +96,23 @@ const Home = () => {
         console.error("Error adding document: ", e);
       }
     }
-
+    const newTask = []
+    readTasks.map(readTask => {
+      newTask.push(readTask)
+    })
+    setTasks(newTask)
     setUpdate(false)
 
   }
 
   return (
-    <div>
+    <div className="container">
       <div className="row">
         <Header />
 
-        <h1 className="text-center m-5">Tasks List App</h1>
+        <h1 className="text-center my-5">Tasks List App</h1>
         <Tasks
           tasks={tasks}
-          handleRead={handleClickRead}
           handleUpdate={handleClickUpdate}
           handleDelete={handleClickDelete}
           handleNewTask={handleNewTask}

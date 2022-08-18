@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom"
 import {
   auth,
   db
@@ -12,7 +13,10 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   onAuthStateChanged,
-  signOut
+  signOut,
+  GoogleAuthProvider,
+  signInWithPopup,
+  sendPasswordResetEmail
 } from "firebase/auth"
 import {
   doc,
@@ -20,7 +24,9 @@ import {
   deleteDoc,
   getDocs,
   collection,
-  updateDoc
+  updateDoc,
+  where,
+  query
 } from "firebase/firestore"
 
 export const taskContext = createContext()
@@ -33,7 +39,9 @@ export const useTask = () => {
 }
 
 export const TaskProvider = ({ children }) => {
-  const [user, setUser] = useState(null)
+
+  const navigate = useNavigate()
+  const [user, setUser] = useState()
   const [readTasks, setReadTasks] = useState([])
 
   const signup = async (email, password) =>
@@ -42,19 +50,33 @@ export const TaskProvider = ({ children }) => {
   const login = (email, password) =>
     signInWithEmailAndPassword(auth, email, password)
 
+  const reset = (email) => {
+    sendPasswordResetEmail(auth, email)
+  }
+
+  const loginWithGoogle = () => {
+    const provider = new GoogleAuthProvider()
+    signInWithPopup(auth, provider)
+  }
+
   const logout = () =>
     signOut(auth)
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       setUser(user)
+      if (!user)
+        navigate('/login')
     })
-    getData()
   }, [])
+
+  useEffect(() => {
+    getData()
+  }, [user])
 
   const getData = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, "task"))
+      const querySnapshot = await getDocs(query(collection(db, "task"), where("userID", "==", user?.uid)))
       const dataBase = querySnapshot.docs.map(doc => {
         const id = doc.id
         const title = doc.data().title
@@ -64,12 +86,13 @@ export const TaskProvider = ({ children }) => {
       })
       setReadTasks(dataBase)
     } catch (error) {
-      console.log(error)
+      //console.log(error)
     }
   }
 
   const saveTask = async (title, description) =>
     await addDoc(collection(db, 'task'), {
+      userID: user.uid,
       title: title,
       description: description
     })
@@ -79,7 +102,18 @@ export const TaskProvider = ({ children }) => {
   const updateTask = (id, newTask) => updateDoc(doc(db, 'task', id), newTask)
 
   return (
-    <taskContext.Provider value={{ login, logout, signup, user, saveTask, readTasks, deleteTask, updateTask }}>
+    <taskContext.Provider value={{
+      login,
+      reset,
+      loginWithGoogle,
+      logout,
+      signup,
+      user,
+      saveTask,
+      readTasks,
+      deleteTask,
+      updateTask
+    }}>
       {children}
     </taskContext.Provider>
   )

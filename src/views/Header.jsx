@@ -1,6 +1,7 @@
 import { Navbar, Nav, NavDropdown } from "react-bootstrap"
 import { useTask } from "../context/TaskContext"
 import { useNavigate } from "react-router-dom"
+import image from "../image-not-found.webp"
 
 const Header = () => {
 
@@ -8,32 +9,29 @@ const Header = () => {
 
   const { user, logout } = useTask()
 
-  const name = !user ? null : user.displayName ? user.displayName : user.email
-
   const handleClick = async () => {
     await logout()
-    navigate('/')
+    navigate('/login')
   }
 
   return (
-    <Navbar bg="light" className="row mb-3">
+    <Navbar bg="light" className="row mb-3 border-black border">
       <h1 className="text-center col-10">
-        Welcome {name}
+        {user?.displayName || user?.email}
       </h1>
       <Nav bg="light" className="col-1">
         {
-          user ? (<NavDropdown title={name} >
+          user && (<NavDropdown
+            title={
+              <img
+                src={user?.photoURL || image}
+                className="border rounded-circle w-75" />
+            } >
             <NavDropdown.Item onClick={handleClick} >
               Logout
             </NavDropdown.Item>
           </NavDropdown>
-          ) : (
-            <>
-              <Nav.Link href="/login">Login</Nav.Link>
-              <Nav.Link href="/register">Register</Nav.Link>
-
-            </>)
-        }
+          )}
       </Nav>
     </Navbar>
   )

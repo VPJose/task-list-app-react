@@ -2,7 +2,7 @@ import { Card, Form, Button } from "react-bootstrap"
 
 const Cards = ({ state, dispatch, handleSubmit }) => {
   return (
-    <Card className="col-5 m-auto mt-0">
+    <Card className="col-lg-5 col-10 m-auto mt-0">
       <Form onSubmit={(event) => handleSubmit(event, state)}>
         <Form.Group className="mb-3">
           <Form.Label>Title</Form.Label>
